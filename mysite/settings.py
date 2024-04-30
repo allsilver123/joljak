@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders', #cors
+    'common.apps.CommonConfig',  
+
 ]
 
 MIDDLEWARE = [
@@ -173,3 +175,6 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# 로그인 리다이렉션 경로
+LOGIN_REDIRECT_URL = 'main_page'

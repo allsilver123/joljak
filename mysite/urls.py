@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 
@@ -24,5 +24,5 @@ urlpatterns = [
     path('video-stream/', views.video_stream, name='video-stream'),
     path('upload/', views.upload,  name='upload'),
     path('start/', views.start,  name='start'),
-    
+    path('common/', include('common.urls')),
 ]

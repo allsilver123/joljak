@@ -8,6 +8,10 @@ from django.http import JsonResponse
 import time
 import random
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
 # views.py 파일 내부에 있는 코드 예제
 
 from django.http import HttpResponse
@@ -89,3 +93,5 @@ def video_stream(request):
             time.sleep(1)
 
     return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
+
+

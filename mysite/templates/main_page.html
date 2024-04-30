@@ -62,6 +62,13 @@
       UI LOCK :
       <input type="checkbox" id="lock_check_box" />
       <button id="process-btn">이미지 처리</button>
+      {% if user.is_authenticated %}
+      <a class="nav-link" href="{% url 'common:logout' %}"
+        >{{ user.username }} (로그아웃)</a
+      >
+      {% else %}
+      <button id="loginButton" class="nav-link">로그인</button>
+      {% endif %}
     </header>
     <div class="content">
       <div class="grid-stack"></div>
@@ -125,6 +132,12 @@
           videoStreamElement.src = "/video-stream/?" + new Date().getTime(); // 캐시 방지를 위해 타임스탬프 사용
         };
       });
+
+      document
+        .getElementById("loginButton")
+        .addEventListener("click", function () {
+          window.location.href = "{% url 'common:login' %}";
+        });
     </script>
   </body>
 </html>
