@@ -59,6 +59,7 @@
       <button id="video_start">Strat</button>
       <button id="video_start">Setting</button>
       <button id="video_start">Reset</button>
+      <img class="" style="width: 100px" />
       UI LOCK :
       <input type="checkbox" id="lock_check_box" />
       <button id="process-btn">이미지 처리</button>
@@ -68,6 +69,8 @@
       >
       {% else %}
       <button id="loginButton" class="nav-link">로그인</button>
+      {% endif %} {% if user.is_authenticated %}
+      <button>설정</button>
       {% endif %}
     </header>
     <div class="content">
