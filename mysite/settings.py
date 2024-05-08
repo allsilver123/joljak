@@ -119,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ko'
 
 TIME_ZONE = 'UTC'
 
@@ -178,3 +178,5 @@ CHANNEL_LAYERS = {
 
 # 로그인 리다이렉션 경로
 LOGIN_REDIRECT_URL = 'main_page'
+LOGIN_URL = '/login/'
+

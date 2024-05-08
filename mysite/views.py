@@ -17,6 +17,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import numpy as np
+from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
 def upload(request):
@@ -28,6 +29,7 @@ def upload(request):
         return HttpResponse('<script>alert("File uploaded successfully"); location.href="/proxy/8000/main/"; </script>')
     return HttpResponse('Only POST requests are allowed')
 
+@login_required(login_url='/login/')
 def main_page(request):
     return render(request, 'main_page.html')
 
@@ -52,51 +54,30 @@ def point_on_img(image_path, points, output_path=None, radius=5):
     for point in points:
         x, y = point
         cv2.circle(image, (x, y), radius, (0, 0, 255), -1)
-
+    # 현재 점을 기준으로 x 픽셀 기준으로 
    
     if output_path:
         cv2.imwrite(output_path, image)
     return image
 
-# 특정 영역 내 점 개수 세기
-def count_points_in_grid(frame, points, grid_size=100):
-    # NumPy 출력 옵션 변경
-    np.set_printoptions(threshold=np.inf)
-    grid_counts = np.zeros((grid_size-1, grid_size-1), dtype=int)
-    for x, y in points:
-        grid_x = min(int(x // (frame.shape[1] / grid_size)), grid_size-2)
-        grid_y = min(int(y // (frame.shape[0] / grid_size)), grid_size-2)
-        grid_counts[grid_y, grid_x] += 1
-
-    #print(f"{grid_counts}\n")
-    return grid_counts
-
-
-
 # 특정 영역 내 점이 많은 경우 사각형 그리기
-def draw_rectangles(image, points, grid_counts, threshold=2):
-    height, width, _ = image.shape
-    grid_size = 100
-
-    for point in points:
-        x, y = point
-        grid_x = x // grid_size
-        grid_y = y // grid_size
-
-        if grid_counts[grid_y, grid_x] >= threshold:
-            print(f"{grid_x, grid_y} 위험")
-            top_left = (grid_x * grid_size, grid_y * grid_size)
-            bottom_right = ((grid_x + 1) * grid_size, (grid_y + 1) * grid_size)
-            cv2.rectangle(image, top_left, bottom_right, (0, 0, 255), 2)
-
-    return image
-
+def draw_rectangles(frame, points, area_counts, threshold=5):
+    for grid_y in range(len(area_counts)):
+        for grid_x in range(len(area_counts[0])):
+            
+            if area_counts[grid_y][grid_x] >= threshold:
+                x1 = grid_x * (frame.shape[1] // len(area_counts[0]))
+                y1 = grid_y * (frame.shape[0] // len(area_counts))
+                x2 = (grid_x + 1) * (frame.shape[1] // len(area_counts[0]))
+                y2 = (grid_y + 1) * (frame.shape[0] // len(area_counts))
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    return frame
 
 # 이미지 재생
 def video_stream(request):
     def frame_generator():
         i = 0
-        while i < 5:
+        while True:
             i += 1
             image_width = 1920
             image_height = 1080
@@ -104,21 +85,17 @@ def video_stream(request):
             num_points = np.random.randint(0, 500)  # 생성할 점의 개수
             points = [(np.random.randint(0, image_width), np.random.randint(0, image_height)) for _ in range(num_points)]
             # 그리드 크기 설정
-            grid_size_x = 10  # 가로 방향으로 나눌 그리드의 수
-            grid_size_y = 10  # 세로 방향으로 나눌 그리드의 수
+            area_size_x = 10  # 가로 방향으로 나눌 그리드의 수
+            area_size_y = 10  # 세로 방향으로 나눌 그리드의 수
 
             # 그리드 각 셀에 대한 카운트를 저장할 배열 초기화
-            grid_counts = np.zeros((grid_size_y, grid_size_x), dtype=int)
+            area_counts = np.zeros((area_size_y, area_size_x), dtype=int)
 
             # 각 점이 어느 그리드 셀에 속하는지 확인
             for x, y in points:
-                grid_x = min(x // (image_width // grid_size_x), grid_size_x - 1)
-                grid_y = min(y // (image_height // grid_size_y), grid_size_y - 1)
-                grid_counts[grid_y, grid_x] += 1
-
-            # 그리드 카운트 출력
-            print(grid_counts)
-            print()
+                grid_x = min(x // (image_width // area_size_x), area_size_x - 1)
+                grid_y = min(y // (image_height // area_size_y), area_size_y - 1)
+                area_counts[grid_y, grid_x] += 1
 
             for _ in range(num_points):
                 x = random.randint(0, image_width)
@@ -134,12 +111,8 @@ def video_stream(request):
             if frame is None or not frame.any():
                 break
 
-
-            # 특정 영역 내 점 개수 세기
-            grid_counts = count_points_in_grid(frame, points, grid_size=100)
-
             # 특정 영역 내 점이 많은 경우 사각형 그리기
-            frame = draw_rectangles(frame, points, grid_counts, threshold=2)
+            frame = draw_rectangles(frame, points, area_counts, threshold=5)
 
             # 받아온 이미지를 JPEG 형식으로 인코딩
             ret, jpeg = cv2.imencode('.jpg', frame)
@@ -151,8 +124,6 @@ def video_stream(request):
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n\r\n')
             
-       
-
 
     return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
 

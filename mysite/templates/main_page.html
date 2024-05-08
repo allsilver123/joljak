@@ -9,6 +9,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Crowd Counting</title>
     <link rel="stylesheet" href="{% static 'css/main_page.css' %}" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'bootstrap.min.css' %}"
+    />
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -23,6 +28,11 @@
     />
     <script src="{% static 'node_modules/gridstack/dist/gridstack-all.js' %}"></script>
 
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDlNzISa1I-DSRvTjxGzJrVaLpllerFq14&libraries=visualization&callback=initMap"
+      async
+      defer
+    ></script>
     <script>
       $(function () {
         $("#file_upload").click(function () {
@@ -44,7 +54,65 @@
   </head>
 
   <body>
+    <!-- 네비게이션바 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">K-Tech</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              {% if user.is_authenticated %}
+              <a class="nav-link" href="{% url 'common:logout' %}"
+                >{{ user.username }} (로그아웃)</a
+              >
+              {% else %}
+              <a class="nav-link" href="{% url 'common:login' %}">회원가입</a>
+              {% endif %} {% if user.is_authenticated %} {% endif %}
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                id="lockGridLink"
+                href="#"
+                >고정</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="#"
+                id="unlockGridLink"
+                >고정 해제</a
+              >
+            </li>
+            <li class="nav-item">
+              {% if not user.is_authenticated %}
+              <a class="nav-link" href="{% url 'common:login' %}">회원가입</a>
+              {% endif %}
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="process-btn">이미지 처리</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!--
     <header>
+      
       <form
         action="/proxy/8000/upload/"
         method="post"
@@ -56,37 +124,14 @@
         >
       </form>
 
-      <button id="video_start">Strat</button>
-      <button id="video_start">Setting</button>
-      <button id="video_start">Reset</button>
-      <img class="" style="width: 100px" />
-      UI LOCK :
-      <input type="checkbox" id="lock_check_box" />
-      <button id="process-btn">이미지 처리</button>
-      {% if user.is_authenticated %}
-      <a class="nav-link" href="{% url 'common:logout' %}"
-        >{{ user.username }} (로그아웃)</a
-      >
-      {% else %}
-      <button id="loginButton" class="nav-link">로그인</button>
-      {% endif %} {% if user.is_authenticated %}
-      <button>설정</button>
-      {% endif %}
     </header>
+    -->
     <div class="content">
       <div class="grid-stack"></div>
     </div>
 
-    <script type="module" src="{% static 'js/draw_graph.js' %}"></script>
-    <script type="module" src="{% static 'js/ui_control.js' %}"></script>
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDlNzISa1I-DSRvTjxGzJrVaLpllerFq14&libraries=visualization&callback=initMap"
-      async
-      defer
-    ></script>
     <script>
       var map, heatmap;
-
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
           zoom: 15, // 확대 비율을 높임
@@ -101,7 +146,7 @@
         });
 
         // 실시간으로 데이터 업데이트
-        updateHeatmapData();
+        //updateHeatmapData();
       }
 
       function updateHeatmapData() {
@@ -135,12 +180,8 @@
           videoStreamElement.src = "/video-stream/?" + new Date().getTime(); // 캐시 방지를 위해 타임스탬프 사용
         };
       });
-
-      document
-        .getElementById("loginButton")
-        .addEventListener("click", function () {
-          window.location.href = "{% url 'common:login' %}";
-        });
     </script>
+    <script type="module" src="{% static 'js/draw_graph.js' %}"></script>
+    <script type="module" src="{% static 'js/ui_control.js' %}"></script>
   </body>
 </html>

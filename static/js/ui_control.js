@@ -55,22 +55,17 @@ grid.on("added removed change", function (e, items) {
   re_layout_b_graph();
 });
 
-// 페이지가 로드되면 실행될 함수를 정의합니다.
-document.addEventListener("DOMContentLoaded", function () {
-  // 체크 박스 요소에 대한 참조를 가져옵니다.
-  var checkBox = document.getElementById("lock_check_box");
-  console.log("lock check box used");
-  // 체크 박스의 상태 변경을 감지하고, checkStatus 함수를 호출합니다.
-  checkBox.addEventListener("change", lock_check_box_stat);
-});
-
-function lock_check_box_stat() {
-  // 체크 박스 요소를 가져옵니다.
-  var checkBox = document.getElementById("lock_check_box");
-
-  if (checkBox.checked == true) {
-    grid.setStatic(true);
-  } else {
-    grid.setStatic(true);
-  }
+function lockGrid() {
+  grid.setStatic(true);
 }
+
+// 그리드를 비정적으로 설정하는 함수
+function unlockGrid() {
+  grid.setStatic(false);
+}
+
+// 고정 링크에 이벤트 리스너 등록
+document.getElementById("lockGridLink").addEventListener("click", lockGrid);
+
+// 고정 해제 링크에 이벤트 리스너 등록
+document.getElementById("unlockGridLink").addEventListener("click", unlockGrid);
