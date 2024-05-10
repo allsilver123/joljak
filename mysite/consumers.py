@@ -53,7 +53,7 @@ class VideoStreamConsumer(AsyncWebsocketConsumer):
 
     async def start_stream(self):
         i = 0
-        while i < 1:
+        while i < 50:
             i += 1
             image_width = 1920
             image_height = 1080

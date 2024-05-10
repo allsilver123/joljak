@@ -16,8 +16,7 @@ body {
   overflow: auto; /* 수정됨 */
 }
 body {
-  background: white;
-  color: #fff;
+  background: black;
   display: flex;
   flex-direction: column;
 }
@@ -45,6 +44,7 @@ header button {
 }
 
 .content {
+  background-color: black;
   width: 100%;
   height: calc(100% - 50px); /* 헤더 높이를 고려 */
   display: flex;

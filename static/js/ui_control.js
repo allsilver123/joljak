@@ -6,7 +6,7 @@ let items = [
   {
     x: 0,
     y: 0,
-    w: 6,
+    w: 9,
     h: 6,
     noMove: false,
     content: `<div class="grid-stack-item-content item">
@@ -18,29 +18,20 @@ let items = [
   </div>`,
   },
   {
-    x: 6,
+    x: 10,
     y: 0,
-    w: 6,
-    h: 6,
+    w: 3,
+    h: 3,
     noMove: false,
     content: `<div id="r_graph"></div>`,
   },
   {
-    x: 0,
-    y: 2,
-    w: 12,
-    h: 6,
+    x: 10,
+    y: 0,
+    w: 3,
+    h: 2,
     noMove: false,
     content: `<div id="b_graph"></div>`,
-  },
-  { x: 0, y: 3, w: 12, h: 6, noMove: false, content: `<div id="map"></div>` },
-  {
-    x: 0,
-    y: 4,
-    w: 12,
-    h: 6,
-    noMove: false,
-    content: `<div id="contour_graph"></div>`,
   },
 ];
 grid.load(items);
@@ -50,9 +41,6 @@ grid.on("added removed change", function (e, items) {
   items.forEach(function (item) {
     str += " (x,y)=" + item.x + "," + item.y;
   });
-  console.log(e.type + " " + items.length + " items:" + str);
-  draw_r_graph();
-  re_layout_b_graph();
 });
 
 function lockGrid() {
