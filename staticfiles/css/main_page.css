@@ -1,0 +1,94 @@
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+}
+
+.dummy-img {
+  width: 100%;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* 수정됨 */
+}
+body {
+  background: white;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.wrap {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+#graph1 {
+  width: 100%;
+
+  background: #fff;
+}
+header {
+  width: 100%;
+
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  background: #000;
+  border-bottom: 3px solid grey;
+}
+header button {
+  float: right;
+  padding: 5px 10px;
+}
+
+.content {
+  width: 100%;
+  height: calc(100% - 50px); /* 헤더 높이를 고려 */
+  display: flex;
+  flex-direction: column;
+  overflow: auto; /* 추가됨: 필요에 따라 콘텐츠 내부에서 스크롤 활성화 */
+}
+
+.video {
+  width: 40%;
+  padding: 20px;
+}
+#result-image {
+  width: 100%;
+  border: #000 solid 3px;
+}
+#count {
+  color: #f00;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.video,
+.rGraph {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.rGraph {
+  flex: 1; /* 남은 공간을 차지하도록 설정 */
+}
+
+.bottom {
+  flex: 1; /* 남은 공간을 차지하도록 설정 */
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+}
+
+#map {
+  height: 400px;
+  width: 100%;
+}

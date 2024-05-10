@@ -2,22 +2,19 @@ from django.shortcuts import render
 from django.http import StreamingHttpResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-import cv2
+import cv2, random, json, requests, ftplib
 from PIL import Image, ImageDraw
 from django.http import JsonResponse
-import time
-import random
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-# views.py 파일 내부에 있는 코드 예제
-
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import numpy as np
 from django.contrib.auth.decorators import login_required
+from django.http import StreamingHttpResponse
+from common.models import CustomUser
 
 @csrf_exempt
 def upload(request):
@@ -41,11 +38,6 @@ def start(request):
     cap = cv2.VideoCapture(video_path)
     
     return HttpResponse('ok')
-
-import cv2
-import random
-import time
-from django.http import StreamingHttpResponse
 
 def point_on_img(image_path, points, output_path=None, radius=5):
     image = cv2.imread(image_path)
@@ -121,10 +113,77 @@ def video_stream(request):
                 
             image = jpeg.tobytes()
 
+            points_data = json.dumps(points)
+
+            # 이미지 데이터와 points 데이터를 함께 전송
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n\r\n')
             
-
     return StreamingHttpResponse(frame_generator(), content_type='multipart/x-mixed-replace; boundary=frame')
 
+def msg_test(request): 
+    session = ftplib.FTP()
 
+    session.connect('125.6.40.93', 21) # 두 번째 인자는 port number
+    session.login("zol_zac", "zol_zac")   # FTP 서버에 접속
+    
+    uploadfile = open('./static/out/1.jpg' ,mode='rb') #업로드할 파일 open
+    
+    session.encoding='utf-8'
+    session.storbinary('STOR ' + '/send.jpg', uploadfile) #파일 업로드
+    
+    uploadfile.close() # 파일 닫기
+    
+    session.quit() # 서버 나가기
+    # 데이터베이스 조회 로직 (예시)
+    # message = 조회 로직...
+    
+    all_phone_numbers = list(CustomUser.objects.values_list('phone_number', flat=True))
+    print(all_phone_numbers)
+    # API 엔드포인트 설정
+    url = "https://alimtalk-api.bizmsg.kr/v2/sender/send"
+
+    # 요청 헤더 설정
+    headers = {
+        "userid": "ibeobom",
+        "Content-type": "application/json",
+    }
+
+    # 메시지 데이터 설정
+    data2 = {
+        
+        "message_type": "AT", 
+        "phn": "821012345678",
+        "profile": "dc468edce77a32d860ae5ddad48a535aef6be9b3",
+        "msg": "여기에 메시지 내용을 입력하세요.",
+        # 필요한 나머지 필드들도 추가
+    }
+    data = [{
+            "message_type": "ai",
+            "phn": "821076466676",
+            "profile": "dc468edce77a32d860ae5ddad48a535aef6be9b3",
+            "tmplId": "alimtalktest_001",
+            "msg": "hihihihihih",
+            "smsKind": "M",
+            "msgSms": "hi",
+            "smsSender": "01026495219", "smsLmsTit": "[카카오뮤직] 회원가입 안내", "reserveDt": "00000000000000",
+            "img_url" : "http://zol_jac.theseung.com/send.jpg"
+
+    }]
+    # JSON 형식으로 데이터 변환
+    json_data = json.dumps(data)
+
+    try:
+        response = requests.post(url, headers=headers, data=json_data)
+        print(response.content)
+        if response.status_code == 200:
+            print("succ")
+            # 성공적으로 메시지를 보냈다면,
+            return JsonResponse({'message': 'Message sent successfully'}, status=200)
+        else:
+            print("failed")
+            # API 호출 실패
+            return JsonResponse({'error': 'Failed to send message'}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+        

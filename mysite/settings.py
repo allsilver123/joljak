@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
+# Channels 설정
+ASGI_APPLICATION = 'mysite.asgi.application'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,16 +36,28 @@ ALLOWED_HOSTS = ['218.150.182.246', 'localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne', #서버
+    'channels',
+    'corsheaders', #cors
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders', #cors
     'common.apps.CommonConfig',  
-
 ]
+
+# Channels
+ASGI_APPLICATION = 'mysite.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', #cors
@@ -77,13 +92,15 @@ TEMPLATES = [
     },
 ]
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, "node_modules"),
+    os.path.join(BASE_DIR, 'node_modules'),
 ]
 
-WSGI_APPLICATION = 'mysite.wsgi.application'
+#WSGI_APPLICATION = 'mysite.wsgi.application'
 
 
 # Database
@@ -150,9 +167,6 @@ CORS_ALLOW_HEADERS = (
 "x-csrftoken",
 "x-requested-with",
 )
-
-# Channels 설정
-ASGI_APPLICATION = 'mysite.asgi.application'
 
 # Channels layers 설정 (Redis 사용)
 CHANNEL_LAYERS = {

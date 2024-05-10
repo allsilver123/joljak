@@ -49,12 +49,11 @@ function getGraphSize(id) {
   };
 }
 
-export function draw_r_graph() {
-  console.log("draw_r_graph");
+export function draw_r_graph(area_counts = 0) {
   var size = getGraphSize("r_graph");
   var data1 = [
     {
-      z: getNewData(),
+      z: area_counts,
       type: "surface",
     },
   ];
@@ -140,7 +139,9 @@ function rand() {
   }
   return Math.floor(Math.random() * 10) + 50;
 }
+
 let idx = 0;
+
 export function draw_b_graph() {
   // 차트 데이터
   var data = [
@@ -190,46 +191,52 @@ export function draw_b_graph() {
   Plotly.newPlot("b_graph", data, layout);
 
   var cnt = 0;
-
-  var interval = setInterval(function () {
-    Plotly.extendTraces(
-      "b_graph",
-      {
-        y: [[rand()]],
-      },
-      [0]
-    );
-
-    if (++cnt === 100) clearInterval(interval);
-  }, 300);
 }
 
 window.addEventListener("load", draw_r_graph);
 window.addEventListener("load", draw_b_graph);
-window.addEventListener("load", draw_contour_graph);
 setInterval(randomize, 5000);
 
-function draw_contour_graph() {
-  var data = [
-    {
-      z: [
-        [10, 10.625, 12.5, 15.625, 20],
-        [5.625, 6.25, 8.125, 11.25, 15.625],
-        [2.5, 3.125, 5.0, 8.125, 12.5],
-        [0.625, 1.25, 3.125, 6.25, 10.625],
-        [0, 0.625, 2.5, 5.625, 10],
-      ],
-      type: "contour",
-      colorscale: "Jet",
-      contours: {
-        coloring: "lines",
-      },
-    },
-  ];
+document.addEventListener("DOMContentLoaded", function () {
+  var socket = null;
 
-  var layout = {
-    title: "Basic Contour Plot",
-  };
+  document
+    .getElementById("start-stream")
+    .addEventListener("click", function () {
+      if (!socket) {
+        socket = new WebSocket("ws://localhost:8000/ws/video-stream2/"); // 서버의 WebSocket URL로 변경하세요.
 
-  Plotly.newPlot("contour_graph", data, layout);
-}
+        socket.onmessage = function (event) {
+          var data = JSON.parse(event.data);
+          if (data.type === "frame") {
+            Plotly.restyle("r_graph", { z: [data.area_counts] });
+            Plotly.extendTraces(
+              "b_graph",
+              {
+                y: [[data.points.length]],
+              },
+              [0]
+            );
+            console.log(data.area_counts);
+
+            document.getElementById("result-image").src =
+              "data:image/jpeg;base64," + data.image_data;
+          }
+        };
+
+        socket.onclose = function (event) {
+          console.error("Chat socket closed unexpectedly");
+          socket = null; // 연결이 끊어진 후 socket을 null로 설정하여 재연결 준비
+        };
+
+        // 스트리밍 시작 메시지를 서버에 보냄
+        socket.onopen = function (event) {
+          socket.send(
+            JSON.stringify({
+              type: "start_stream",
+            })
+          );
+        };
+      }
+    });
+});

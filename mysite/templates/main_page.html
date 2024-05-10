@@ -106,6 +106,31 @@
             <li class="nav-item">
               <a class="nav-link" id="process-btn">이미지 처리</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" id="sendMessage">메세지 테스트</a>
+            </li>
+            <li><button id="start-stream">Start Stream</button></li>
+            <!-- 메시지 전송 -->
+            <script>
+              $(document).ready(function () {
+                $("#sendMessage").click(function () {
+                  $.ajax({
+                    url: "/main/msg-test/", // Django URLconf에 정의된 경로
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                      // 필요한 데이터
+                    },
+                    success: function (response) {
+                      alert("메시지 전송 성공");
+                    },
+                    error: function (xhr, status, error) {
+                      alert("메시지 전송 실패: " + error);
+                    },
+                  });
+                });
+              });
+            </script>
           </ul>
         </div>
       </div>
@@ -129,7 +154,7 @@
     <div class="content">
       <div class="grid-stack"></div>
     </div>
-
+    <!-- 지도 -->
     <script>
       var map, heatmap;
       function initMap() {
@@ -170,7 +195,10 @@
         }, 10);
       }
     </script>
+    <!-- 스트리밍 -->
     <script>
+      //http 스트리밍
+      /*
       document.addEventListener("DOMContentLoaded", function () {
         const videoStreamElement = document.getElementById("result-image");
         const processBtn = document.getElementById("process-btn");
@@ -179,9 +207,10 @@
           // 버튼 클릭 시, 이미지 스트리밍 시작
           videoStreamElement.src = "/video-stream/?" + new Date().getTime(); // 캐시 방지를 위해 타임스탬프 사용
         };
-      });
+      });*/
     </script>
     <script type="module" src="{% static 'js/draw_graph.js' %}"></script>
     <script type="module" src="{% static 'js/ui_control.js' %}"></script>
+    <script type="module" src="{% static 'js/socket.js' %}"></script>
   </body>
 </html>
